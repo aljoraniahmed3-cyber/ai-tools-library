@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { createErrorResponse, createSuccessResponse } from '@/lib/auth/middleware';
 import { hashPassword } from '@/lib/auth/password';
 import { createToken } from '@/lib/auth/jwt';
-import { query, execute } from '@/lib/db';
+import { query } from '@/lib/db';
 import { z } from 'zod';
 
 const registerSchema = z.object({

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { authenticateRequest, createErrorResponse, createSuccessResponse } from '@/lib/auth/middleware';
-import { query, execute } from '@/lib/db';
+import { query } from '@/lib/db';
 import { z } from 'zod';
 
 const projectSchema = z.object({

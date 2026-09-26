@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { authenticateRequest, createErrorResponse, createSuccessResponse } from '@/lib/auth/middleware';
-import { query, execute } from '@/lib/db';
+import { query } from '@/lib/db';
 import { addVideoJob } from '@/lib/jobs/queue';
 import { selectBestProvider } from '@/lib/ai/videoProviders';
 import { z } from 'zod';
