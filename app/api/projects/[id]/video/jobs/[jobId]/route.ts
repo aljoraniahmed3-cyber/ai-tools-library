@@ -5,7 +5,7 @@ import { getJobStatus, cancelJob } from '@/lib/jobs/queue';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; jobId: string } }
+  { params }: { params: Promise<{ id: string; jobId: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -14,10 +14,11 @@ export async function GET(
   }
 
   try {
+    const resolvedParams = await params;
     // Verify project ownership
     const projectResult = await query(
       'SELECT id FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (projectResult.length === 0) {
@@ -27,7 +28,7 @@ export async function GET(
     // Get job from database
     const jobResult = await query(
       'SELECT * FROM video_generation_jobs WHERE id = $1 AND project_id = $2',
-      [params.jobId, params.id]
+      [resolvedParams.jobId, resolvedParams.id]
     );
 
     if (jobResult.length === 0) {
@@ -39,7 +40,7 @@ export async function GET(
     // Try to get real-time status from queue
     let queueStatus = null;
     try {
-      queueStatus = await getJobStatus('video-generation', params.jobId);
+      queueStatus = await getJobStatus('video-generation', resolvedParams.jobId);
     } catch (e) {
       // Queue unavailable, use database status
     }
@@ -56,7 +57,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; jobId: string } }
+  { params }: { params: Promise<{ id: string; jobId: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -65,10 +66,11 @@ export async function DELETE(
   }
 
   try {
+    const resolvedParams = await params;
     // Verify project ownership
     const projectResult = await query(
       'SELECT id FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (projectResult.length === 0) {
@@ -78,7 +80,7 @@ export async function DELETE(
     // Verify job exists
     const jobResult = await query(
       'SELECT id FROM video_generation_jobs WHERE id = $1 AND project_id = $2',
-      [params.jobId, params.id]
+      [resolvedParams.jobId, resolvedParams.id]
     );
 
     if (jobResult.length === 0) {
@@ -87,7 +89,7 @@ export async function DELETE(
 
     // Cancel from queue
     try {
-      await cancelJob('video-generation', params.jobId);
+      await cancelJob('video-generation', resolvedParams.jobId);
     } catch (e) {
       console.error('Failed to cancel queue job:', e);
     }
@@ -95,7 +97,7 @@ export async function DELETE(
     // Update database status
     await query(
       'UPDATE video_generation_jobs SET status = $1 WHERE id = $2',
-      ['cancelled', params.jobId]
+      ['cancelled', resolvedParams.jobId]
     );
 
     return createSuccessResponse({ cancelled: true });

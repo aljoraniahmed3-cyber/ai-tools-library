@@ -11,7 +11,7 @@ const generateStorySchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -20,10 +20,11 @@ export async function POST(
   }
 
   try {
+    const resolvedParams = await params;
     // Verify project ownership
     const projectResult = await query(
       'SELECT id FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (projectResult.length === 0) {
@@ -51,7 +52,7 @@ export async function POST(
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
       [
-        params.id,
+        resolvedParams.id,
         `Story: ${idea.substring(0, 50)}...`,
         storyContent,
         idea,

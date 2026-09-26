@@ -16,7 +16,7 @@ const generateVideoSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -25,10 +25,11 @@ export async function POST(
   }
 
   try {
+    const resolvedParams = await params;
     // Verify project ownership
     const projectResult = await query(
       'SELECT id FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (projectResult.length === 0) {
@@ -63,7 +64,7 @@ export async function POST(
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
-        params.id,
+        resolvedParams.id,
         sceneId || null,
         imageUrl ? 'image_to_video' : 'text_to_video',
         prompt,
@@ -78,7 +79,7 @@ export async function POST(
     // Queue the job
     try {
       await addVideoJob({
-        projectId: params.id,
+        projectId: resolvedParams.id,
         sceneId: sceneId || '',
         prompt,
         duration,

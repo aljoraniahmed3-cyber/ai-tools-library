@@ -14,7 +14,7 @@ const updateProjectSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -23,9 +23,10 @@ export async function GET(
   }
 
   try {
+    const resolvedParams = await params;
     const result = await query(
       'SELECT * FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (result.length === 0) {
@@ -41,7 +42,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -50,10 +51,11 @@ export async function PUT(
   }
 
   try {
+    const resolvedParams = await params;
     // Check ownership
     const project = await query(
       'SELECT id FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (project.length === 0) {
@@ -82,7 +84,7 @@ export async function PUT(
     });
 
     query_str += `, updated_at = CURRENT_TIMESTAMP WHERE id = $${param_idx} AND user_id = $${param_idx + 1} RETURNING *`;
-    values.push(params.id, user.userId);
+    values.push(resolvedParams.id, user.userId);
 
     const result = await query(query_str, values);
 
@@ -103,7 +105,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { user, error } = await authenticateRequest(request);
 
@@ -112,9 +114,10 @@ export async function DELETE(
   }
 
   try {
+    const resolvedParams = await params;
     const rowsDeleted = await execute(
       'DELETE FROM projects WHERE id = $1 AND user_id = $2',
-      [params.id, user.userId]
+      [resolvedParams.id, user.userId]
     );
 
     if (rowsDeleted === 0) {
