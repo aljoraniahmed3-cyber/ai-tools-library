@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  experimental: {
-    serverComponentsExternalPackages: ['pg', 'fluent-ffmpeg']
-  },
+  serverExternalPackages: ['pg', 'fluent-ffmpeg'],
   headers: async () => [
     {
       source: '/:path*',

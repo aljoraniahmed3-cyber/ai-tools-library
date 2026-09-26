@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./app/*"]
     },
     "moduleResolution": "bundler"
   },
