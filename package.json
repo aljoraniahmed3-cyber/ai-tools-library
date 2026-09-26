@@ -28,7 +28,6 @@
     "dotenv": "^16.3.1",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.3",
-    "next-auth": "^5.0.0",
     "axios": "^1.7.7",
     "openai": "^4.67.0",
     "bull": "^4.11.5",
