@@ -18,11 +18,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const client = getAPIClient();
-      const response = await client.login(email, password);
+      const response = await getAPIClient.login(email, password);
 
       if (response.success && response.data.token) {
-        client.setToken(response.data.token);
+        getAPIClient.setToken(response.data.token);
         toast.success(language === 'ar' ? 'تم تسجيل الدخول بنجاح' : 'Login successful');
         router.push('/dashboard');
       } else {

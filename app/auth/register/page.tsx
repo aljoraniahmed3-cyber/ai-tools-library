@@ -31,11 +31,10 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const client = getAPIClient();
-      const response = await client.register(email, name, password);
+      const response = await getAPIClient.register(email, name, password);
 
       if (response.success && response.data.token) {
-        client.setToken(response.data.token);
+        getAPIClient.setToken(response.data.token);
         toast.success(language === 'ar' ? 'تم الإنشاء بنجاح' : 'Account created successfully');
         router.push('/dashboard');
       } else {
